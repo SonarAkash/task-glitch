@@ -23,6 +23,7 @@ interface UseTasksState {
   updateTask: (id: string, patch: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   undoDelete: () => void;
+  clearLastDeleted: () => void;
 }
 
 const INITIAL_METRICS: Metrics = {
@@ -168,13 +169,21 @@ export function useTasks(): UseTasksState {
     });
   }, []);
 
+  // Fix: Reset the deleted state so the snackbar doesn't restore old data later
+  const clearLastDeleted = useCallback(() => {
+    setLastDeleted(null);
+  }, []);
+  
   const undoDelete = useCallback(() => {
     if (!lastDeleted) return;
     setTasks(prev => [...prev, lastDeleted]);
     setLastDeleted(null);
   }, [lastDeleted]);
 
-  return { tasks, loading, error, derivedSorted, metrics, lastDeleted, addTask, updateTask, deleteTask, undoDelete };
+  return { tasks, loading, error, derivedSorted, metrics, lastDeleted, addTask, updateTask, deleteTask, undoDelete, clearLastDeleted };
+
 }
+
+
 
 

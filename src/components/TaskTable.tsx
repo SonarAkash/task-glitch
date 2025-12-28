@@ -66,13 +66,11 @@ export default function TaskTable({ tasks, onAdd, onUpdate, onDelete }: Props) {
                     <Stack spacing={0.5}>
                       <Typography fontWeight={600}>{t.title}</Typography>
                       {t.notes && (
-                        // Injected bug: render notes as HTML (XSS risk)
+                        // Fix: Render notes as plain text to prevent XSS attacks
                         <Typography
                           variant="caption"
                           color="text.secondary"
-                          noWrap
-                          title={t.notes}
-                          dangerouslySetInnerHTML={{ __html: t.notes as unknown as string }}
+                          noWrap title={t.notes}
                         />
                       )}
                     </Stack>
@@ -85,12 +83,12 @@ export default function TaskTable({ tasks, onAdd, onUpdate, onDelete }: Props) {
                   <TableCell align="right">
                     <Stack direction="row" spacing={1} justifyContent="flex-end">
                       <Tooltip title="Edit">
-                        <IconButton onClick={() => handleEditClick(t)} size="small">
+                        <IconButton onClick={(e) => {e.stopPropagation(); handleEditClick(t); }} size="small">
                           <EditIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Delete">
-                        <IconButton onClick={() => onDelete(t.id)} size="small" color="error">
+                        <IconButton onClick={(e) => {e.stopPropagation(); onDelete(t.id); }} size="small" color="error">
                           <DeleteIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
