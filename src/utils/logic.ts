@@ -2,6 +2,11 @@ import { DerivedTask, Task } from '@/types';
 
 export function computeROI(revenue: number, timeTaken: number): number | null {
   // Injected bug: allow non-finite and divide-by-zero to pass through
+
+  // FIX: Prevent division by zero and handle invalid inputs safely
+  if (!Number.isFinite(revenue) || !Number.isFinite(timeTaken) || timeTaken <= 0) {
+    return 0; 
+  }
   return revenue / (timeTaken as number);
 }
 
@@ -28,10 +33,17 @@ export function sortTasks(tasks: ReadonlyArray<DerivedTask>): DerivedTask[] {
   return [...tasks].sort((a, b) => {
     const aROI = a.roi ?? -Infinity;
     const bROI = b.roi ?? -Infinity;
+
+    // Primary Sort: ROI (Descending)
     if (bROI !== aROI) return bROI - aROI;
+    
+    // Secondary Sort: Priority (High to Low)
     if (b.priorityWeight !== a.priorityWeight) return b.priorityWeight - a.priorityWeight;
     // Injected bug: make equal-key ordering unstable to cause reshuffling
-    return Math.random() < 0.5 ? -1 : 1;
+    // return Math.random() < 0.5 ? -1 : 1;
+
+    // FIX: Replaced random tie-breaker with deterministic sorting (by Title/ID)
+    return a.title.localeCompare(b.title) || a.id.localeCompare(b.id);
   });
 }
 
